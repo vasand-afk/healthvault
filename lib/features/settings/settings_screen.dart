@@ -1,7 +1,12 @@
+import 'dart:convert';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:healthvault/core/database/database.dart';
 import 'package:healthvault/core/services/auth_service.dart';
 import 'package:healthvault/core/theme/app_theme.dart';
 import 'package:healthvault/features/auth/lock_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -49,6 +54,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (value is int) await prefs.setInt(key, value);
   }
 
+  Future<void> _exportData() async {
+    try {
+      final db = await AppDatabase.instance;
+      const tables = [
+        'diagnoses', 'appointments', 'lab_results', 'body_compositions',
+        'imaging_results', 'wearable_data', 'food_logs', 'water_logs',
+        'activities', 'workouts', 'workout_sets', 'sleep_logs', 'symptoms',
+        'mood_logs', 'supplements', 'supplement_logs', 'documents',
+        'reminders', 'epigenetic_clocks', 'snp_variants', 'proteomics_results',
+        'senescence_scores', 'metabolomics_results', 'microbiome_snapshots', 'omics_other',
+      ];
+      final export = <String, dynamic>{
+        'exported_at': DateTime.now().toIso8601String(),
+        'app': 'HealthVault',
+        'version': '1.0.0',
+      };
+      for (final t in tables) {
+        try { export[t] = await db.query(t); } catch (_) { export[t] = []; }
+      }
+      final json = const JsonEncoder.withIndent('  ').convert(export);
+      final bytes = utf8.encode(json);
+      final blob = html.Blob([bytes], 'application/json');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement(href: url)
+        ..setAttribute('download', 'healthvault_export_${DateFormat('yyyyMMdd').format(DateTime.now())}.json')
+        ..click();
+      html.Url.revokeObjectUrl(url);
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export downloaded'), backgroundColor: Color(0xFF10B981)));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e'), backgroundColor: AppTheme.danger));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +129,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _PinSettingsTile(),
           const SizedBox(height: 24),
           _SectionTitle('Data & Privacy'),
-          _ActionTile(icon: Icons.download, label: 'Export All Data', subtitle: 'Download a complete JSON backup', color: AppTheme.primary, onTap: () {}),
+          _ActionTile(icon: Icons.download, label: 'Export All Data', subtitle: 'Download a complete JSON backup', color: AppTheme.primary, onTap: _exportData),
           _ActionTile(icon: Icons.delete_forever, label: 'Clear All Data', subtitle: 'Permanently delete all health records', color: AppTheme.danger, onTap: () {
             showDialog(context: context, builder: (_) => AlertDialog(
               backgroundColor: AppTheme.surface,
@@ -100,7 +138,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               actions: [
                 TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 ElevatedButton(
-                  onPressed: () { Navigator.pop(context); },
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final db = await AppDatabase.instance;
+                    const tables = ['diagnoses','appointments','lab_results','body_compositions','imaging_results','wearable_data','food_logs','water_logs','activities','workouts','workout_sets','sleep_logs','symptoms','mood_logs','supplements','supplement_logs','documents','reminders','epigenetic_clocks','snp_variants','proteomics_results','senescence_scores','metabolomics_results','microbiome_snapshots','omics_other','ai_messages'];
+                    for (final t in tables) { try { await db.delete(t); } catch (_) {} }
+                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All data cleared'), backgroundColor: AppTheme.danger));
+                  },
                   style: ElevatedButton.styleFrom(backgroundColor: AppTheme.danger),
                   child: const Text('Delete Everything'),
                 ),
