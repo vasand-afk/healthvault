@@ -1,12 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:healthvault/core/router/app_router.dart';
 import 'package:healthvault/core/services/auth_service.dart';
 import 'package:healthvault/core/theme/app_theme.dart';
 import 'package:healthvault/features/auth/lock_screen.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+  }
   runApp(const ProviderScope(child: HealthVaultApp()));
 }
 
