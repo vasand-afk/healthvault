@@ -18,6 +18,7 @@ import 'package:healthvault/features/ai_coach/ai_coach_screen.dart';
 import 'package:healthvault/features/library/library_screen.dart';
 import 'package:healthvault/features/import/import_screen.dart';
 import 'package:healthvault/features/settings/settings_screen.dart';
+import 'package:healthvault/features/reminders/reminders_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -46,6 +47,7 @@ final appRouter = GoRouter(
         GoRoute(path: '/ai-coach', builder: (c, s) => const AiCoachScreen()),
         GoRoute(path: '/library', builder: (c, s) => const LibraryScreen()),
         GoRoute(path: '/import', builder: (c, s) => const ImportScreen()),
+        GoRoute(path: '/reminders', builder: (c, s) => const RemindersScreen()),
         GoRoute(path: '/settings', builder: (c, s) => const SettingsScreen()),
       ],
     ),

@@ -18,6 +18,7 @@ class AppShell extends StatelessWidget {
     _NavItem(icon: Icons.auto_awesome_outlined, activeIcon: Icons.auto_awesome, label: 'AI Coach', path: '/ai-coach'),
     _NavItem(icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book, label: 'Library', path: '/library'),
     _NavItem(icon: Icons.upload_outlined, activeIcon: Icons.upload, label: 'Import', path: '/import'),
+    _NavItem(icon: Icons.notifications_outlined, activeIcon: Icons.notifications, label: 'Reminders', path: '/reminders'),
     _NavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings, label: 'Settings', path: '/settings'),
   ];
 

@@ -13,7 +13,7 @@ class AppDatabase {
     final path = join(await getDatabasesPath(), 'healthvault.db');
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -21,6 +21,7 @@ class AppDatabase {
 
   static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) await _createOmicsTables(db);
+    if (oldVersion < 3) await _createRemindersTable(db);
   }
 
   static Future<void> _onCreate(Database db, int version) async {
@@ -317,6 +318,7 @@ class AppDatabase {
     ''');
 
     await _createOmicsTables(db);
+    await _createRemindersTable(db);
 
     await db.execute('''
       CREATE TABLE ai_messages (
@@ -326,6 +328,24 @@ class AppDatabase {
         content TEXT NOT NULL,
         created_at TEXT NOT NULL,
         FOREIGN KEY (conversation_id) REFERENCES ai_conversations(id)
+      )
+    ''');
+  }
+
+  static Future<void> _createRemindersTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS reminders (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        body TEXT,
+        type TEXT NOT NULL,
+        frequency TEXT NOT NULL,
+        time_of_day TEXT,
+        days_of_week TEXT,
+        next_due TEXT,
+        last_triggered TEXT,
+        enabled INTEGER DEFAULT 1,
+        created_at TEXT NOT NULL
       )
     ''');
   }

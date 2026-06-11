@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:healthvault/core/services/auth_service.dart';
 import 'package:healthvault/core/theme/app_theme.dart';
+import 'package:healthvault/features/auth/lock_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -84,6 +86,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, height: 1.4),
             ),
           ),
+          const SizedBox(height: 24),
+          _SectionTitle('Security'),
+          _PinSettingsTile(),
           const SizedBox(height: 24),
           _SectionTitle('Data & Privacy'),
           _ActionTile(icon: Icons.download, label: 'Export All Data', subtitle: 'Download a complete JSON backup', color: AppTheme.primary, onTap: () {}),
@@ -178,6 +183,76 @@ class _DropdownField extends StatelessWidget {
         onChanged: onChanged,
       ),
     );
+  }
+}
+
+class _PinSettingsTile extends StatefulWidget {
+  @override
+  State<_PinSettingsTile> createState() => _PinSettingsTileState();
+}
+
+class _PinSettingsTileState extends State<_PinSettingsTile> {
+  bool _enabled = false;
+
+  @override
+  void initState() { super.initState(); _load(); }
+  Future<void> _load() async {
+    final e = await AuthService.instance.isPinEnabled();
+    if (mounted) setState(() => _enabled = e);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(color: AppTheme.cardBg, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
+        child: Row(children: [
+          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.lock, color: AppTheme.primary, size: 20)),
+          const SizedBox(width: 14),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('PIN Lock', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600)),
+            Text('Require PIN to open the app', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+          ])),
+          Switch(
+            value: _enabled,
+            activeColor: AppTheme.primary,
+            onChanged: (v) async {
+              if (v) {
+                // Show PIN setup
+                await showDialog(context: context, barrierDismissible: false, builder: (_) => Dialog(
+                  backgroundColor: AppTheme.background,
+                  child: SizedBox(height: 520, child: LockScreen(setup: true, onUnlocked: () { Navigator.pop(context); })),
+                ));
+                _load();
+              } else {
+                await AuthService.instance.disablePin();
+                _load();
+              }
+            },
+          ),
+        ]),
+      ),
+      if (_enabled) GestureDetector(
+        onTap: () => showDialog(context: context, barrierDismissible: false, builder: (_) => Dialog(
+          backgroundColor: AppTheme.background,
+          child: SizedBox(height: 520, child: LockScreen(setup: true, onUnlocked: () { Navigator.pop(context); })),
+        )).then((_) => _load()),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: AppTheme.cardBg, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
+          child: const Row(children: [
+            SizedBox(width: 44),
+            SizedBox(width: 14),
+            Text('Change PIN', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w500)),
+            Spacer(),
+            Icon(Icons.chevron_right, color: AppTheme.primary, size: 18),
+          ]),
+        ),
+      ),
+    ]);
   }
 }
 
