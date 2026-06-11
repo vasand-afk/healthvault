@@ -6,6 +6,7 @@ import 'package:healthvault/core/database/database.dart';
 import 'package:healthvault/core/services/auth_service.dart';
 import 'package:healthvault/core/theme/app_theme.dart';
 import 'package:healthvault/features/auth/lock_screen.dart';
+import 'package:healthvault/features/settings/privacy_policy_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -129,6 +130,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _PinSettingsTile(),
           const SizedBox(height: 24),
           _SectionTitle('Data & Privacy'),
+          _ActionTile(icon: Icons.privacy_tip_outlined, label: 'Privacy Policy', subtitle: 'How your data is handled', color: AppTheme.primary, onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()));
+          }),
           _ActionTile(icon: Icons.download, label: 'Export All Data', subtitle: 'Download a complete JSON backup', color: AppTheme.primary, onTap: _exportData),
           _ActionTile(icon: Icons.delete_forever, label: 'Clear All Data', subtitle: 'Permanently delete all health records', color: AppTheme.danger, onTap: () {
             showDialog(context: context, builder: (_) => AlertDialog(
