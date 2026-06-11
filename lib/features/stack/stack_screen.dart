@@ -66,6 +66,11 @@ class _StackScreenState extends State<StackScreen> with SingleTickerProviderStat
             final db = await AppDatabase.instance;
             await db.update('supplements', {'active': active ? 1 : 0}, where: 'id = ?', whereArgs: [id]);
             _load();
+          }, onDelete: (id) async {
+            final db = await AppDatabase.instance;
+            await db.delete('supplement_logs', where: 'supplement_id = ?', whereArgs: [id]);
+            await db.delete('supplements', where: 'id = ?', whereArgs: [id]);
+            _load();
           }),
           _HistoryTab(logs: _todayLogs, supplements: _supplements),
         ],
@@ -182,7 +187,8 @@ class _StackTab extends StatelessWidget {
   final List<Map<String, dynamic>> supplements;
   final VoidCallback onAdd;
   final Function(String, bool) onToggle;
-  const _StackTab({required this.supplements, required this.onAdd, required this.onToggle});
+  final Function(String) onDelete;
+  const _StackTab({required this.supplements, required this.onAdd, required this.onToggle, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -234,11 +240,8 @@ class _StackTab extends StatelessWidget {
                   ],
                 ),
               ),
-              Switch(
-                value: active,
-                onChanged: (v) => onToggle(s['id'], v),
-                activeColor: AppTheme.accent,
-              ),
+              Switch(value: active, onChanged: (v) => onToggle(s['id'], v), activeColor: AppTheme.accent),
+              GestureDetector(onTap: () => onDelete(s['id'] as String), child: const Icon(Icons.close, color: AppTheme.textSecondary, size: 15)),
             ],
           ),
         );

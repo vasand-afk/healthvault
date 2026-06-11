@@ -94,7 +94,11 @@ class _FitnessScreenState extends State<FitnessScreen> {
                     padding: const EdgeInsets.all(20),
                     itemCount: filtered.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, i) => _ActivityCard(activity: filtered[i]),
+                    itemBuilder: (context, i) => _ActivityCard(activity: filtered[i], onDelete: () async {
+                      final db = await AppDatabase.instance;
+                      await db.delete('activities', where: 'id = ?', whereArgs: [filtered[i]['id']]);
+                      _load();
+                    }),
                   ),
           ),
         ],
@@ -117,7 +121,8 @@ class _FitnessScreenState extends State<FitnessScreen> {
 
 class _ActivityCard extends StatelessWidget {
   final Map<String, dynamic> activity;
-  const _ActivityCard({required this.activity});
+  final VoidCallback onDelete;
+  const _ActivityCard({required this.activity, required this.onDelete});
 
   IconData _typeIcon(String? type) {
     switch (type) {
@@ -159,6 +164,8 @@ class _ActivityCard extends StatelessWidget {
               if (activity['distance_km'] != null) Text('${(activity['distance_km'] as num).toStringAsFixed(2)} km', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 15)),
               if (activity['duration_minutes'] != null) Text('${activity['duration_minutes']} min', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
               if (activity['calories'] != null) Text('${(activity['calories'] as num).toInt()} kcal', style: const TextStyle(color: AppTheme.warning, fontSize: 11)),
+              const SizedBox(height: 4),
+              GestureDetector(onTap: onDelete, child: const Icon(Icons.close, color: AppTheme.textSecondary, size: 15)),
             ],
           ),
         ],

@@ -85,7 +85,11 @@ class _SleepScreenState extends State<SleepScreen> {
                 ),
               )
             else
-              ..._logs.map((log) => _SleepRow(log: log)).toList(),
+              ..._logs.map((log) => _SleepRow(log: log, onDelete: () async {
+                final db = await AppDatabase.instance;
+                await db.delete('sleep_logs', where: 'id = ?', whereArgs: [log['id']]);
+                _load();
+              })).toList(),
             const SizedBox(height: 80),
           ],
         ),
@@ -239,7 +243,8 @@ class _SleepChart extends StatelessWidget {
 
 class _SleepRow extends StatelessWidget {
   final Map<String, dynamic> log;
-  const _SleepRow({required this.log});
+  final VoidCallback onDelete;
+  const _SleepRow({required this.log, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -256,11 +261,10 @@ class _SleepRow extends StatelessWidget {
           Text('${(log['total_hours'] as num?)?.toStringAsFixed(1) ?? '--'}h', style: const TextStyle(color: AppTheme.secondary, fontWeight: FontWeight.w700, fontSize: 15)),
           if (log['sleep_score'] != null) ...[
             const SizedBox(width: 12),
-            StatusBadge(
-              label: '${log['sleep_score']}',
-              color: (log['sleep_score'] as int) >= 85 ? AppTheme.accent : AppTheme.warning,
-            ),
+            StatusBadge(label: '${log['sleep_score']}', color: (log['sleep_score'] as int) >= 85 ? AppTheme.accent : AppTheme.warning),
           ],
+          const SizedBox(width: 8),
+          GestureDetector(onTap: onDelete, child: const Icon(Icons.close, color: AppTheme.textSecondary, size: 16)),
         ],
       ),
     );

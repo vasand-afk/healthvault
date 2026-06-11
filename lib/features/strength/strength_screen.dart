@@ -55,7 +55,12 @@ class _StrengthScreenState extends State<StrengthScreen> {
               padding: const EdgeInsets.all(20),
               itemCount: _workouts.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, i) => _WorkoutCard(workout: _workouts[i]),
+              itemBuilder: (context, i) => _WorkoutCard(workout: _workouts[i], onDelete: () async {
+                final db = await AppDatabase.instance;
+                await db.delete('workout_sets', where: 'workout_id = ?', whereArgs: [_workouts[i]['id']]);
+                await db.delete('workouts', where: 'id = ?', whereArgs: [_workouts[i]['id']]);
+                _load();
+              }),
             ),
     );
   }
@@ -85,7 +90,8 @@ class _StrengthScreenState extends State<StrengthScreen> {
 
 class _WorkoutCard extends StatelessWidget {
   final Map<String, dynamic> workout;
-  const _WorkoutCard({required this.workout});
+  final VoidCallback onDelete;
+  const _WorkoutCard({required this.workout, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +126,8 @@ class _WorkoutCard extends StatelessWidget {
                 children: [
                   Text('$totalSets sets', style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w600, fontSize: 13)),
                   Text('${totalVolume.toInt()} kg vol', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                  const SizedBox(height: 4),
+                  GestureDetector(onTap: onDelete, child: const Icon(Icons.close, color: AppTheme.textSecondary, size: 15)),
                 ],
               ),
             ],

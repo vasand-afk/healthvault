@@ -5,6 +5,8 @@ import 'package:healthvault/core/router/app_router.dart';
 import 'package:healthvault/core/services/auth_service.dart';
 import 'package:healthvault/core/theme/app_theme.dart';
 import 'package:healthvault/features/auth/lock_screen.dart';
+import 'package:healthvault/features/onboarding/onboarding_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -26,6 +28,7 @@ class _HealthVaultAppState extends State<HealthVaultApp> with WidgetsBindingObse
   bool _ready = false;
   bool _pinEnabled = false;
   bool _needsSetup = false;
+  bool _onboardingDone = false;
   DateTime? _backgroundedAt;
 
   @override
@@ -56,13 +59,14 @@ class _HealthVaultAppState extends State<HealthVaultApp> with WidgetsBindingObse
   }
 
   Future<void> _init() async {
+    final prefs = await SharedPreferences.getInstance();
     final enabled = await AuthService.instance.isPinEnabled();
     final hasPin = await AuthService.instance.hasPinSet();
-    // If PIN is enabled and set, require it on launch
     if (!enabled) AuthService.instance.unlock();
     setState(() {
       _pinEnabled = enabled;
       _needsSetup = !hasPin;
+      _onboardingDone = prefs.getBool('onboarding_done') ?? false;
       _ready = true;
     });
   }
@@ -75,12 +79,11 @@ class _HealthVaultAppState extends State<HealthVaultApp> with WidgetsBindingObse
       debugShowCheckedModeBanner: false,
       home: !_ready
           ? const Scaffold(backgroundColor: Color(0xFF0F172A), body: Center(child: CircularProgressIndicator()))
-          : _pinEnabled && !AuthService.instance.isUnlocked
-              ? LockScreen(
-                  setup: _needsSetup,
-                  onUnlocked: () => setState(() {}),
-                )
-              : _RouterHost(),
+          : !_onboardingDone
+              ? OnboardingScreen(onComplete: () => setState(() => _onboardingDone = true))
+              : _pinEnabled && !AuthService.instance.isUnlocked
+                  ? LockScreen(setup: _needsSetup, onUnlocked: () => setState(() {}))
+                  : _RouterHost(),
     );
   }
 }

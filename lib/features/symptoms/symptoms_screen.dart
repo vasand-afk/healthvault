@@ -55,8 +55,12 @@ class _SymptomsScreenState extends State<SymptomsScreen> with SingleTickerProvid
       body: TabBarView(
         controller: _tabs,
         children: [
-          _SymptomsTab(symptoms: _symptoms, onAdd: _showAddSymptomDialog),
-          _MoodTab(moods: _moods, onAdd: _showAddMoodDialog),
+          _SymptomsTab(symptoms: _symptoms, onAdd: _showAddSymptomDialog, onDelete: (id) async {
+            final db = await AppDatabase.instance; await db.delete('symptoms', where: 'id = ?', whereArgs: [id]); _load();
+          }),
+          _MoodTab(moods: _moods, onAdd: _showAddMoodDialog, onDelete: (id) async {
+            final db = await AppDatabase.instance; await db.delete('mood_logs', where: 'id = ?', whereArgs: [id]); _load();
+          }),
         ],
       ),
     );
@@ -82,7 +86,8 @@ class _SymptomsScreenState extends State<SymptomsScreen> with SingleTickerProvid
 class _SymptomsTab extends StatelessWidget {
   final List<Map<String, dynamic>> symptoms;
   final VoidCallback onAdd;
-  const _SymptomsTab({required this.symptoms, required this.onAdd});
+  final void Function(String) onDelete;
+  const _SymptomsTab({required this.symptoms, required this.onAdd, required this.onDelete});
 
   Color _severityColor(int? s) {
     if (s == null) return AppTheme.textSecondary;
@@ -141,6 +146,8 @@ class _SymptomsTab extends StatelessWidget {
               ),
               if (s['duration_minutes'] != null)
                 StatusBadge(label: '${s['duration_minutes']}min', color: AppTheme.textSecondary),
+              const SizedBox(width: 8),
+              GestureDetector(onTap: () => onDelete(s['id'] as String), child: const Icon(Icons.close, color: AppTheme.textSecondary, size: 15)),
             ],
           ),
         );
@@ -152,7 +159,8 @@ class _SymptomsTab extends StatelessWidget {
 class _MoodTab extends StatelessWidget {
   final List<Map<String, dynamic>> moods;
   final VoidCallback onAdd;
-  const _MoodTab({required this.moods, required this.onAdd});
+  final void Function(String) onDelete;
+  const _MoodTab({required this.moods, required this.onAdd, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -200,6 +208,7 @@ class _MoodTab extends StatelessWidget {
                   ],
                 ),
               ),
+              GestureDetector(onTap: () => onDelete(m['id'] as String), child: const Icon(Icons.close, color: AppTheme.textSecondary, size: 15)),
             ],
           ),
         );
