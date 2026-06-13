@@ -3,9 +3,9 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/database/database.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/features/import/apple_health_parser.dart';
+import 'package:vasan_health/core/database/database.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/features/import/apple_health_parser.dart';
 import 'package:uuid/uuid.dart';
 
 class AppleHealthImportScreen extends StatefulWidget {

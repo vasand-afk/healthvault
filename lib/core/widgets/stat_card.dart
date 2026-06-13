@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
 
 class StatCard extends StatelessWidget {
   final String label;

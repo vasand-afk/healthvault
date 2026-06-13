@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/database/database.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/database/database.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

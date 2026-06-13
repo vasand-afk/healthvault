@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/widgets/stat_card.dart';
-import 'package:healthvault/features/multiomics/multiomics_hub_screen.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/widgets/stat_card.dart';
 
 class VaultScreen extends StatelessWidget {
   const VaultScreen({super.key});
@@ -159,79 +158,38 @@ class _VaultSection {
   });
 }
 
-// Multi-Omics hero entry — sits above the standard medical records
 class _MultiOmicsEntry extends StatelessWidget {
   const _MultiOmicsEntry();
 
-  static const _cyan   = Color(0xFF06B6D4);
-  static const _violet = Color(0xFFA855F7);
-  static const _rose   = Color(0xFFF43F5E);
-  static const _emerald= Color(0xFF10B981);
-  static const _amber  = Color(0xFFF59E0B);
+  static const _cyan = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MultiOmicsHubScreen())),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
-            colors: [Color(0xFF0C1445), Color(0xFF1A0533)],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _cyan.withValues(alpha: 0.4)),
-          boxShadow: [BoxShadow(color: _cyan.withValues(alpha: 0.12), blurRadius: 24, spreadRadius: 0, offset: const Offset(0, 6))],
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: _cyan.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20), border: Border.all(color: _cyan.withValues(alpha: 0.4))),
-              child: Row(children: [
-                Container(width: 6, height: 6, decoration: const BoxDecoration(color: _cyan, shape: BoxShape.circle)),
-                const SizedBox(width: 6),
-                const Text('ADVANCED BIOMARKERS', style: TextStyle(color: _cyan, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
-              ]),
-            ),
-            const Spacer(),
-            const Icon(Icons.arrow_forward_ios, color: Color(0xFF475569), size: 14),
-          ]),
-          const SizedBox(height: 14),
-          const Text('Multi-Omics Data Vault', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.3)),
-          const SizedBox(height: 4),
-          const Text('Biological aging beyond standard labs', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
-          const SizedBox(height: 14),
-          Row(children: [
-            _OmicsChip('DNA Methylation\nClocks', _cyan),
-            const SizedBox(width: 8),
-            _OmicsChip('Proteomics\np16 · GDF-15', _violet),
-            const SizedBox(width: 8),
-            _OmicsChip('Senescence\nSenMayo', _rose),
-          ]),
-          const SizedBox(height: 8),
-          Row(children: [
-            _OmicsChip('Metabolomics\nMicrobiome', _emerald),
-            const SizedBox(width: 8),
-            _OmicsChip('Single-Cell\nExposomics', _amber),
-          ]),
-        ]),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: _cyan.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _cyan.withValues(alpha: 0.25)),
       ),
+      child: Row(children: [
+        const Icon(Icons.science_outlined, color: _cyan, size: 20),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Advanced Biomarkers', style: TextStyle(color: _cyan, fontWeight: FontWeight.w600, fontSize: 13)),
+            SizedBox(height: 2),
+            Text('Multi-omics, proteomics & biological aging clocks', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+          ]),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(color: _cyan.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+          child: const Text('Coming Soon', style: TextStyle(color: _cyan, fontSize: 10, fontWeight: FontWeight.w600)),
+        ),
+      ]),
     );
   }
-}
-
-class _OmicsChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _OmicsChip(this.label, this.color);
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withValues(alpha: 0.3))),
-    child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600, height: 1.3)),
-  );
 }
 
 class _VaultCard extends StatelessWidget {

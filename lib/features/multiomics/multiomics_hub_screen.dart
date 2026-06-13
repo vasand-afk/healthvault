@@ -1,14 +1,14 @@
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/database/database.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/widgets/stat_card.dart';
-import 'package:healthvault/features/multiomics/genomics_screen.dart';
-import 'package:healthvault/features/multiomics/proteomics_screen.dart';
-import 'package:healthvault/features/multiomics/transcriptomics_screen.dart';
-import 'package:healthvault/features/multiomics/metabolomics_screen.dart';
-import 'package:healthvault/features/multiomics/omics_other_screen.dart';
+import 'package:vasan_health/core/database/database.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/widgets/stat_card.dart';
+import 'package:vasan_health/features/multiomics/genomics_screen.dart';
+import 'package:vasan_health/features/multiomics/proteomics_screen.dart';
+import 'package:vasan_health/features/multiomics/transcriptomics_screen.dart';
+import 'package:vasan_health/features/multiomics/metabolomics_screen.dart';
+import 'package:vasan_health/features/multiomics/omics_other_screen.dart';
 
 // ─── Color palette for omics domain ─────────────────────────────────────────
 const _genomicsColor    = Color(0xFF06B6D4);   // cyan

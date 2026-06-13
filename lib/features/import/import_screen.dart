@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/widgets/stat_card.dart';
-import 'package:healthvault/features/import/apple_health_import_screen.dart';
-import 'package:healthvault/features/import/lab_csv_import_screen.dart';
-import 'package:healthvault/features/import/oura_csv_import_screen.dart';
-import 'package:healthvault/features/import/pdf_upload_screen.dart';
-import 'package:healthvault/features/import/garmin_csv_import_screen.dart';
-import 'package:healthvault/features/import/strava_import_screen.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/widgets/stat_card.dart';
+import 'package:vasan_health/features/import/apple_health_import_screen.dart';
+import 'package:vasan_health/features/import/lab_csv_import_screen.dart';
+import 'package:vasan_health/features/import/oura_csv_import_screen.dart';
+import 'package:vasan_health/features/import/pdf_upload_screen.dart';
+import 'package:vasan_health/features/import/garmin_csv_import_screen.dart';
+import 'package:vasan_health/features/import/strava_import_screen.dart';
 
 class ImportScreen extends StatelessWidget {
   const ImportScreen({super.key});

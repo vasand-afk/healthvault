@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/widgets/stat_card.dart';
-import 'package:healthvault/core/database/database.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/widgets/stat_card.dart';
+import 'package:vasan_health/core/database/database.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
@@ -38,13 +38,13 @@ class _StackScreenState extends State<StackScreen> with SingleTickerProviderStat
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Supplement Stack'),
+        title: const Text('Medications, Supplements & Peptides'),
         bottom: TabBar(
           controller: _tabs,
           indicatorColor: AppTheme.accent,
           labelColor: AppTheme.accent,
           unselectedLabelColor: AppTheme.textSecondary,
-          tabs: const [Tab(text: 'Today'), Tab(text: 'My Stack'), Tab(text: 'Log History')],
+          tabs: const [Tab(text: 'Today'), Tab(text: 'My List'), Tab(text: 'Log History')],
         ),
         actions: [IconButton(icon: const Icon(Icons.add), onPressed: _showAddDialog)],
       ),
@@ -107,7 +107,7 @@ class _TodayTab extends StatelessWidget {
           children: const [
             Icon(Icons.science_outlined, size: 64, color: AppTheme.textSecondary),
             SizedBox(height: 16),
-            Text('No supplements in your stack', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w600)),
+            Text('No medications or supplements added', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w600)),
           ],
         ),
       );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -14,7 +14,7 @@ class AppShell extends StatelessWidget {
     _NavItem(icon: Icons.bedtime_outlined, activeIcon: Icons.bedtime, label: 'Sleep', path: '/sleep'),
     _NavItem(icon: Icons.fitness_center_outlined, activeIcon: Icons.fitness_center, label: 'Strength', path: '/strength'),
     _NavItem(icon: Icons.favorite_outline, activeIcon: Icons.favorite, label: 'Symptoms', path: '/symptoms'),
-    _NavItem(icon: Icons.science_outlined, activeIcon: Icons.science, label: 'Stack', path: '/stack'),
+    _NavItem(icon: Icons.medication_outlined, activeIcon: Icons.medication, label: 'Meds & More', path: '/stack'),
     _NavItem(icon: Icons.auto_awesome_outlined, activeIcon: Icons.auto_awesome, label: 'AI Coach', path: '/ai-coach'),
     _NavItem(icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book, label: 'Library', path: '/library'),
     _NavItem(icon: Icons.upload_outlined, activeIcon: Icons.upload, label: 'Import', path: '/import'),

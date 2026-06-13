@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/widgets/stat_card.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/widgets/stat_card.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});

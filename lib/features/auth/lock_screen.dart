@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/services/auth_service.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
+import 'package:vasan_health/core/services/auth_service.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
 
 /// Shown on launch when PIN is enabled.
 /// [setup] = true means first-time PIN creation flow.

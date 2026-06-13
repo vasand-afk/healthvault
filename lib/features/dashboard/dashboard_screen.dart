@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:healthvault/core/database/database.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/core/widgets/stat_card.dart';
+import 'package:vasan_health/core/database/database.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/core/widgets/stat_card.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -13,6 +13,10 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _loading = true;
+
+  // Daily vitals
+  int _sunlightMinutes = 0;
+  int _vitdSupplementIU = 0;
 
   // Today's stats
   double _calories = 0;
@@ -89,6 +93,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       whereArgs: [_today, '$next30 23:59'],
       orderBy: 'date_time ASC', limit: 5);
 
+    // Sunlight today
+    final sunRows = await db.query('sunlight_logs', where: 'date = ?', whereArgs: [_today]);
+    int sunMins = 0, vitdIU = 0;
+    for (final s in sunRows) {
+      sunMins += (s['minutes'] as int? ?? 0);
+      vitdIU += (s['vitd_supplement_iu'] as int? ?? 0);
+    }
+
     // Due reminders
     final reminderRows = await db.query('reminders',
       where: 'enabled = 1 AND next_due <= ?', whereArgs: [_today]);
@@ -103,6 +115,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _activeCal = (w?['active_calories'] as num?)?.toDouble();
         _sleepHrs = (sleep?['total_hours'] as num?)?.toDouble();
         _weightKg = (body?['weight_kg'] as num?)?.toDouble();
+        _sunlightMinutes = sunMins;
+        _vitdSupplementIU = vitdIU;
         _supplementsToday = suppLogs.length;
         _activitiesThisWeek = acts.length;
         _appointments = appts;
@@ -137,6 +151,104 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_protein >= 120) score += 5;
     if (_waterL >= 2.0) score += 5;
     return score.clamp(0, 100);
+  }
+
+  Future<void> _showSunlightDialog(BuildContext context) async {
+    int minutes = 15;
+    int vitdIU = 0;
+    String timeOfDay = 'Morning';
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setModal) => Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 20),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Log Sunlight & Vit D', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 20),
+          const Text('Sunlight exposure', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          Row(children: [
+            for (final m in [10, 15, 20, 30, 45, 60])
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () => setModal(() => minutes = m),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: minutes == m ? AppTheme.warning.withValues(alpha: 0.2) : AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: minutes == m ? AppTheme.warning : AppTheme.border),
+                    ),
+                    child: Text('${m}m', style: TextStyle(color: minutes == m ? AppTheme.warning : AppTheme.textSecondary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  ),
+                ),
+              ),
+          ]),
+          const SizedBox(height: 16),
+          const Text('Time of day', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          Row(children: [
+            for (final t in ['Morning', 'Midday', 'Afternoon'])
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () => setModal(() => timeOfDay = t),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: timeOfDay == t ? AppTheme.primary.withValues(alpha: 0.2) : AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: timeOfDay == t ? AppTheme.primary : AppTheme.border),
+                    ),
+                    child: Text(t, style: TextStyle(color: timeOfDay == t ? AppTheme.primary : AppTheme.textSecondary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  ),
+                ),
+              ),
+          ]),
+          const SizedBox(height: 16),
+          const Text('Vit D supplement (IU) — 0 if none', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          Row(children: [
+            for (final iu in [0, 1000, 2000, 4000, 5000])
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () => setModal(() => vitdIU = iu),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: vitdIU == iu ? AppTheme.accent.withValues(alpha: 0.2) : AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: vitdIU == iu ? AppTheme.accent : AppTheme.border),
+                    ),
+                    child: Text(iu == 0 ? 'None' : '${iu ~/ 1000}k', style: TextStyle(color: vitdIU == iu ? AppTheme.accent : AppTheme.textSecondary, fontWeight: FontWeight.w600, fontSize: 13)),
+                  ),
+                ),
+              ),
+          ]),
+          const SizedBox(height: 24),
+          SizedBox(width: double.infinity, child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.warning, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+            onPressed: () async {
+              final db = await AppDatabase.instance;
+              await db.insert('sunlight_logs', {
+                'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                'date': _today,
+                'minutes': minutes,
+                'time_of_day': timeOfDay,
+                'vitd_supplement_iu': vitdIU,
+                'created_at': DateTime.now().toIso8601String(),
+              });
+              if (mounted) { Navigator.pop(ctx); _load(); }
+            },
+            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700)),
+          )),
+        ]),
+      )),
+    );
   }
 
   String get _scoreLabel {
@@ -201,6 +313,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SectionHeader(title: 'Quick Log'),
               const SizedBox(height: 12),
               _QuickLogRow(),
+              const SizedBox(height: 24),
+              const SectionHeader(title: 'Daily Vitals'),
+              const SizedBox(height: 12),
+              _DailyVitalsSection(
+                sunlightMinutes: _sunlightMinutes,
+                vitdIU: _vitdSupplementIU,
+                onLog: () => _showSunlightDialog(context),
+              ),
               if (_remindersToday.isNotEmpty) ...[
                 const SizedBox(height: 24),
                 SectionHeader(title: 'Due Today', actionLabel: 'All reminders', onAction: () => context.go('/reminders')),
@@ -449,6 +569,76 @@ class _Insight {
   final Color color;
   final String title, body;
   const _Insight(this.icon, this.color, this.title, this.body);
+}
+
+// ─── Daily Vitals ─────────────────────────────────────────────────────────────
+
+class _DailyVitalsSection extends StatelessWidget {
+  final int sunlightMinutes;
+  final int vitdIU;
+  final VoidCallback onLog;
+  const _DailyVitalsSection({required this.sunlightMinutes, required this.vitdIU, required this.onLog});
+
+  static const _amber = Color(0xFFF59E0B);
+  static const _goalMinutes = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = (sunlightMinutes / _goalMinutes).clamp(0.0, 1.0);
+    final met = sunlightMinutes >= _goalMinutes;
+
+    return GestureDetector(
+      onTap: onLog,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: met ? _amber.withValues(alpha: 0.4) : AppTheme.border),
+        ),
+        child: Row(children: [
+          Stack(alignment: Alignment.center, children: [
+            SizedBox(width: 52, height: 52, child: CircularProgressIndicator(
+              value: pct,
+              strokeWidth: 5,
+              backgroundColor: _amber.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation<Color>(met ? _amber : _amber.withValues(alpha: 0.6)),
+            )),
+            Icon(Icons.wb_sunny, color: _amber, size: 22),
+          ]),
+          const SizedBox(width: 16),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Sunlight & Vit D', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
+            const SizedBox(height: 4),
+            Text(
+              sunlightMinutes == 0
+                ? 'No sunlight logged today'
+                : '$sunlightMinutes min outdoors${vitdIU > 0 ? ' · ${vitdIU ~/ 1000}k IU Vit D' : ''}',
+              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: pct,
+                backgroundColor: _amber.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(_amber),
+                minHeight: 4,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text('Goal: ${_goalMinutes} min daily', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+          ])),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(color: _amber.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
+            child: Text(met ? '✓ Done' : '+ Log', style: TextStyle(color: _amber, fontSize: 12, fontWeight: FontWeight.w600)),
+          ),
+        ]),
+      ),
+    );
+  }
 }
 
 class _InsightCard extends StatelessWidget {

@@ -1,12 +1,14 @@
 import 'dart:convert';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:healthvault/core/database/database.dart';
-import 'package:healthvault/core/services/auth_service.dart';
-import 'package:healthvault/core/theme/app_theme.dart';
-import 'package:healthvault/features/auth/lock_screen.dart';
-import 'package:healthvault/features/settings/privacy_policy_screen.dart';
+import 'package:vasan_health/core/database/database.dart';
+import 'package:vasan_health/core/services/auth_service.dart';
+import 'package:vasan_health/core/theme/app_theme.dart';
+import 'package:vasan_health/features/auth/lock_screen.dart';
+import 'package:vasan_health/features/settings/privacy_policy_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,13 +78,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
       final json = const JsonEncoder.withIndent('  ').convert(export);
       final bytes = utf8.encode(json);
-      final blob = html.Blob([bytes], 'application/json');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute('download', 'healthvault_export_${DateFormat('yyyyMMdd').format(DateTime.now())}.json')
-        ..click();
-      html.Url.revokeObjectUrl(url);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export downloaded'), backgroundColor: Color(0xFF10B981)));
+      final fileName = 'healthvault_export_${DateFormat('yyyyMMdd').format(DateTime.now())}.json';
+      if (kIsWeb) {
+        // Web export not supported in this build
+      } else {
+        final dir = await getTemporaryDirectory();
+        final file = File('${dir.path}/$fileName');
+        await file.writeAsBytes(bytes);
+        await Share.shareXFiles([XFile(file.path)]);
+      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export ready'), backgroundColor: Color(0xFF10B981)));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e'), backgroundColor: AppTheme.danger));
     }
